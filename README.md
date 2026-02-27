@@ -155,6 +155,7 @@ templates/                               # Configuration templates
 
 3. Review Phase
    └── Each *-reviewer validates corresponding files
+       └── If CHANGES REQUIRED: developer fixes → same reviewer re-reviews (loop until APPROVED, max 3 cycles)
 
 4. Completion
    └── All files in target project's .github/

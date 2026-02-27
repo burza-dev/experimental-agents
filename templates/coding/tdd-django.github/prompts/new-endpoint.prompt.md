@@ -32,6 +32,7 @@ Create a new async Django API endpoint using the TDD Red-Green-Refactor workflow
 4. Implementer refactors for clarity and async best practices (REFACTOR)
 5. Coverage test writer closes gaps to 75%+
 6. Code reviewer validates async patterns and security
+7. If CHANGES REQUIRED: Implementer fixes → same reviewer re-reviews (loop until APPROVED)
 
 ## Includes
 - Async view function

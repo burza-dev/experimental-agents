@@ -1,7 +1,7 @@
 ---
 name: researcher
 description: Analyze target projects to understand structure, tech stack, conventions, and patterns. Provides research findings to support agent configuration creation.
-tools: ["read", "search", "web", "web"]
+tools: ["read", "search", "web"]
 disable-model-invocation: false
 user-invokable: false
 ---

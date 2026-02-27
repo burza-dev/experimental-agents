@@ -31,6 +31,7 @@ Fix a bug using TDD — write a failing regression test first, then fix the code
 4. Implementer refactors if needed (REFACTOR)
 5. Coverage test writer ensures coverage maintained
 6. Code reviewer validates fix doesn't introduce regressions
+7. If CHANGES REQUIRED: Implementer fixes → same reviewer re-reviews (loop until APPROVED)
 
 ## Deliverables
 - Regression test proving bug is fixed

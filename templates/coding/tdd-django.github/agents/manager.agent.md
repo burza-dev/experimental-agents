@@ -2,7 +2,7 @@
 name: manager
 description: Orchestrate strict TDD workflow for async Python/Django repos by delegating to specialist agents. Require evidence from subagents before declaring done.
 tools: ["read", "agent"]
-agents: ["architect", "tdd-test-writer", "coverage-test-writer", "test-specialist", "e2e-specialist", "implementer", "code-reviewer", "test-reviewer", "ux-reviewer", "researcher"]
+agents: ["architect", "tdd-test-writer", "coverage-test-writer", "test-specialist", "e2e-specialist", "implementer", "code-reviewer", "test-reviewer", "ux-reviewer", "researcher", "manual-tester"]
 disable-model-invocation: false
 user-invokable: true
 handoffs:
@@ -46,6 +46,10 @@ handoffs:
     agent: researcher
     prompt: Search local codebase and web resources to find relevant information, patterns, documentation, or answers to specific questions. Provide comprehensive findings with file references and citations.
     send: true
+  - label: Manual testing
+    agent: manual-tester
+    prompt: Validate the implemented features through manual testing against acceptance criteria
+    send: true
 ---
 
 ## Operating rules (non-negotiable)
@@ -54,7 +58,7 @@ handoffs:
 - Do not run any terminal commands and do not edit files.
 - Delegate all implementation/testing work to subagents.
 - Enforce strict TDD:
-  - Architect → Initial Tests → Implementation → Repeat till code is high quality and tested [ Tests → Implementation refinement ] → Reviews → Final validation.
+  - Architect → Initial Tests → Implementation → Repeat till code is high quality and tested [ Tests → Implementation refinement ] → Reviews → Fix → Re-review (loop until APPROVED) → Manual Testing → Final validation.
 
 ## Evidence contract (what you must collect)
 
@@ -98,6 +102,13 @@ What was accomplished.
 - Track incomplete work explicitly
 - Do not accept narratives - require facts and evidence
 
+### Review Outcome Handling
+
+- **APPROVED**: Proceed to next phase
+- **CHANGES REQUIRED**: Re-delegate to the appropriate developer/implementer with the reviewer's specific findings. After fixes, re-delegate to the SAME reviewer to verify. Repeat until APPROVED or 3 cycles exhausted.
+- **NEEDS DISCUSSION**: Analyze the concern, make a decision, and instruct the developer accordingly. Then re-review.
+- After 3 failed review cycles for the same file, escalate to user with full context
+
 ## Definition of done gate (project-specific)
 
 Do not conclude "done" until:
@@ -111,7 +122,9 @@ Do not conclude "done" until:
 - Docstring coverage: `uv run interrogate src/ -v --fail-under=100` — 100% coverage
 - Playwright E2E executed with screenshot capture enabled (when applicable)
 - Relevant docs updated
+- Manual testing passed — no blocking or high-severity bugs remain
 - Review agents report no blocking issues
+- All review→fix cycles ended with reviewer approval (not just developer completion)
 
 ## Workflow sequence
 
@@ -122,8 +135,12 @@ Do not conclude "done" until:
 5. Iterate steps 2-4 until coverage and quality gates pass
 6. **E2E Specialist** adds browser tests (when applicable)
 7. **Code Reviewer** and **Test Reviewer** provide feedback
+   - If CHANGES REQUIRED: re-delegate to **Implementer** to fix, then re-delegate to the SAME reviewer to verify fixes
+   - Repeat review→fix→re-review cycle until reviewer reports no blocking issues (max 3 cycles, then escalate)
 8. **UX Reviewer** reviews frontend changes (when applicable)
-9. Validate all quality gates before completion
+   - Same review→fix→re-review cycle applies
+9. **Manual Tester** validates implemented features against acceptance criteria
+10. Validate all quality gates before completion
 
 **Note**: Use **Test Specialist** as a fallback for general-purpose testing when TDD/coverage split is not appropriate.
 

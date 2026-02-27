@@ -20,6 +20,8 @@ experimental-agents/
 │   ├── agents/                    # Agent definitions
 │   │   ├── manager.agent.md       # Orchestrator agent
 │   │   ├── researcher.agent.md    # Project analyzer
+│   │   ├── architect.agent.md     # Agent architecture designer
+│   │   ├── manual-tester.agent.md # Configuration tester
 │   │   ├── *-developer.agent.md   # Developer agents
 │   │   └── *-reviewer.agent.md    # Reviewer agents
 │   ├── instructions/              # Path-specific instructions
@@ -74,6 +76,11 @@ User Request
   └──────────────────────────────────────┘
      ↓
   ┌──────────────────────────────────────┐
+  │         Architecture Phase           │
+  │  architect → design agent plan       │
+  └──────────────────────────────────────┘
+     ↓
+  ┌──────────────────────────────────────┐
   │           Creation Phase             │
   │  copilot-instructions-developer      │
   │  agent-definition-developer          │
@@ -85,6 +92,16 @@ User Request
   ┌──────────────────────────────────────┐
   │           Review Phase               │
   │  *-reviewer for each created file    │
+  │                                      │
+  │  If CHANGES REQUIRED:               │
+  │    developer fixes → reviewer        │
+  │    re-reviews (loop until APPROVED)  │
+  │  Max 3 cycles; then escalate to user │
+  └──────────────────────────────────────┘
+     ↓
+  ┌──────────────────────────────────────┐
+  │           Testing Phase              │
+  │  manual-tester → validate configs    │
   └──────────────────────────────────────┘
      ↓
   Done
@@ -96,6 +113,8 @@ User Request
 |-------|---------|
 | `manager` | Orchestrates workflow, delegates to specialists |
 | `researcher` | Analyzes target project structure and patterns |
+| `architect` | Designs agent architectures for target projects (agents, relationships, handoff patterns, tool assignments, workflows) |
+| `manual-tester` | Validates agent configurations by simulating real-world usage scenarios (end-to-end workflow testing, cross-reference verification, coverage gap analysis, handoff chain verification) |
 | `agent-definition-developer` | Creates `.agent.md` files |
 | `agent-definition-reviewer` | Reviews agent definitions |
 | `instructions-developer` | Creates `.instructions.md` files |
@@ -192,6 +211,7 @@ argument-hint: Describe input  # Optional, hint text in chat input
    - `instructions-developer` → create file instructions
    - `prompts-developer` → create prompts
 4. Reviewers validate each file
+   - If issues found: developer fixes → reviewer re-reviews (loop until APPROVED)
 5. Self-review phase: subagents report configuration improvement suggestions
 6. All files placed in target project's `.github/`
 
@@ -200,7 +220,7 @@ argument-hint: Describe input  # Optional, hint text in chat input
 1. Use `agent-definition-developer` or `create-agent` prompt
 2. Provide agent role and purpose
 3. Developer generates `.agent.md` file
-4. `agent-definition-reviewer` validates
+4. `agent-definition-reviewer` validates → if issues, developer fixes → re-review (loop until APPROVED)
 
 ### Review Existing Configuration
 
@@ -208,6 +228,7 @@ argument-hint: Describe input  # Optional, hint text in chat input
 2. Reviewers analyze all config files
 3. Report issues by severity
 4. Apply fixes as needed
+5. Re-review to confirm fixes are correct (loop until all issues resolved)
 
 ## Verification Commands
 

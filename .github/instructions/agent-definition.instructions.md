@@ -88,6 +88,31 @@ Examples:
 - Overlapping responsibilities with other agents
 - Instructions exceeding 30,000 characters
 
+## Common Agent Role Types
+
+When designing multi-agent systems, agents typically fall into these categories:
+
+| Role Type | Purpose | Examples |
+|-----------|---------|---------|
+| Orchestrator | Coordinates workflow, delegates to specialists | `manager` |
+| Researcher | Analyzes project structure and patterns | `researcher` |
+| Architect | Designs agent architectures, relationships, handoff patterns, tool assignments, and workflows | `architect` |
+| Developer | Creates or modifies files and implementations | `implementer`, `test-writer` |
+| Reviewer | Validates quality of created artifacts | `code-reviewer` |
+| Tester | Validates configurations by simulating real-world usage scenarios | `manual-tester` |
+
+### Standard Workflow Phases
+
+Multi-agent workflows typically follow these phases:
+
+1. **Research** — Analyze the target project
+2. **Architecture** — Design agent structure, relationships, and handoff patterns
+3. **Creation** — Create files and implementations
+4. **Review** — Validate quality of deliverables
+5. **Testing** — End-to-end workflow testing, cross-reference verification, coverage gap analysis
+
+Each phase may involve one or more specialized agents. Orchestrator agents coordinate transitions between phases using handoffs.
+
 ## Handoff Configuration
 
 Handoffs allow agents to delegate work to other agents.

@@ -31,6 +31,7 @@ Implement a new feature using the TDD Red-Green-Refactor workflow with async Dja
 6. E2E specialist adds browser tests (if UI)
 7. Code reviewer validates quality and async patterns
 8. Test reviewer validates test quality
+9. If CHANGES REQUIRED: Implementer fixes → same reviewer re-reviews (loop until APPROVED)
 
 ## Quality Gates
 - 75% unit + integration coverage

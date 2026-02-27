@@ -32,6 +32,8 @@ Create a new async-compatible Django model using the TDD Red-Green-Refactor work
 4. Implementer refactors for clarity (REFACTOR)
 5. Create and validate migration
 6. Coverage test writer validates coverage to 75%+
+7. Code reviewer validates quality and async patterns
+8. If CHANGES REQUIRED: Implementer fixes → same reviewer re-reviews (loop until APPROVED)
 
 ## Includes
 - Model with typed fields

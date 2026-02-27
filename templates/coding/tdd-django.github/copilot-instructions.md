@@ -23,6 +23,7 @@ This project uses specialized agents for TDD-driven development.
 | `code-reviewer` | Reviews code quality (no diffs) |
 | `test-reviewer` | Reviews test quality (no diffs) |
 | `ux-reviewer` | Reviews UI/accessibility (no diffs) |
+| `manual-tester` | Validates features through manual testing — acceptance criteria, user flows, edge cases |
 
 ### TDD Sequence
 
@@ -32,7 +33,9 @@ This project uses specialized agents for TDD-driven development.
 4. **Coverage** → Coverage Test Writer closes coverage gaps after implementation
 5. **Iterate** → Repeat test/implement until quality gates pass
 6. **Review** → Reviewers provide feedback (no diffs)
-7. **Validate** → Manager confirms all gates pass
+7. **Fix & Re-review** → If issues found, Implementer fixes → Reviewers re-review (loop until approved, max 3 cycles)
+8. **Manual Test** → Manual Tester verifies acceptance criteria, user flows, and edge cases
+9. **Validate** → Manager confirms all gates pass
 
 ### Agent Instructions
 

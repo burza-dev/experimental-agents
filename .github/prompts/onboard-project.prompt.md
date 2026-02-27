@@ -72,6 +72,8 @@ Create the following for the target project:
    - Validate YAML/JSON syntax for every file
    - Verify no overlapping agent responsibilities
    - Confirm all file paths and cross-references are correct
+   - Each *-reviewer validates corresponding files
+   - If CHANGES REQUIRED: developer fixes → same reviewer re-reviews (loop until APPROVED)
 
 ## Deliverables
 

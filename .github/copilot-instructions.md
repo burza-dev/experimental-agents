@@ -1,161 +1,249 @@
-# Copilot Instructions for agents-instructions
+# Copilot Instructions for Agent Configuration Templates
 
 ## Project Overview
 
-This project (`agents-instructions`) develops **portable coding agent instructions** - reusable agent definitions, prompts, and configuration files that can be adopted by other projects. This is a **documentation/configuration project**, not a software application.
+This repository provides **cross-project templates** for GitHub Copilot agent configurations. It contains specialized agents that help create, review, and manage:
+
+- **Agent definitions** (`.agent.md`) - Custom Copilot agents
+- **Path-specific instructions** (`.instructions.md`) - File-type specific guidance
+- **Hooks** (`hooks.json` + scripts) - Custom behavior at execution points
+- **Prompts** (`.prompt.md`) - Reusable task templates
+- **Copilot instructions** (`copilot-instructions.md`) - Repository-wide guidance
+
+The agents in this repository are designed to analyze a target project and create tailored agent configurations for it.
+
+## Repository Structure
+
+```
+experimental-agents/
+├── .github/
+│   ├── agents/                    # Agent definitions
+│   │   ├── manager.agent.md       # Orchestrator agent
+│   │   ├── researcher.agent.md    # Project analyzer
+│   │   ├── *-developer.agent.md   # Developer agents
+│   │   └── *-reviewer.agent.md    # Reviewer agents
+│   ├── instructions/              # Path-specific instructions
+│   │   ├── agent-definition.instructions.md
+│   │   ├── instructions-file.instructions.md
+│   │   ├── prompt-file.instructions.md
+│   │   ├── hooks.instructions.md
+│   │   ├── copilot-instructions-file.instructions.md
+│   │   └── markdown.instructions.md
+│   ├── prompts/                   # Reusable prompts
+│   │   ├── create-agent.prompt.md
+│   │   ├── create-copilot-instructions.prompt.md
+│   │   ├── create-hooks.prompt.md
+│   │   ├── create-instructions.prompt.md
+│   │   ├── create-prompts.prompt.md
+│   │   ├── debug-agent-issue.prompt.md
+│   │   ├── onboard-project.prompt.md
+│   │   ├── optimize-agent.prompt.md
+│   │   ├── review-configuration.prompt.md
+│   │   └── validate-configuration.prompt.md
+│   ├── hooks/                     # Hooks configuration
+│   │   ├── hooks.json
+│   │   └── scripts/
+│   │       ├── log-prompt.ps1
+│   │       ├── log-prompt.sh
+│   │       ├── log-session.ps1
+│   │       ├── log-session.sh
+│   │       ├── log-tool.ps1
+│   │       ├── log-tool.sh
+│   │       ├── on-error.ps1
+│   │       ├── on-error.sh
+│   │       ├── validate-tool.ps1
+│   │       └── validate-tool.sh
+│   └── copilot-instructions.md    # This file
+├── templates/                     # Template directory (add more as needed)
+│   └── coding/                    # Coding templates
+└── README.md
+```
 
 ## Multi-Agent Workflow
 
-This project uses specialized agents for documentation development.
+This project uses a **manager-subagent pattern** for creating agent configurations:
+
+```
+User Request
+     ↓
+  manager
+     ↓
+  ┌──────────────────────────────────────┐
+  │           Research Phase             │
+  │  researcher → analyze target project │
+  └──────────────────────────────────────┘
+     ↓
+  ┌──────────────────────────────────────┐
+  │           Creation Phase             │
+  │  copilot-instructions-developer      │
+  │  agent-definition-developer          │
+  │  instructions-developer              │
+  │  prompts-developer                   │
+  │  hooks-developer                     │
+  └──────────────────────────────────────┘
+     ↓
+  ┌──────────────────────────────────────┐
+  │           Review Phase               │
+  │  *-reviewer for each created file    │
+  └──────────────────────────────────────┘
+     ↓
+  Done
+```
 
 ### Available Agents
 
 | Agent | Purpose |
 |-------|---------|
-| `manager` | Orchestrates documentation workflow, validates completion |
-| `architect` | Plans documentation structure and organization |
-| `doc-writer` | Writes and updates documentation content |
-| `doc-reviewer` | Reviews documentation quality and accuracy |
-| `researcher` | Researches best practices and existing patterns |
+| `manager` | Orchestrates workflow, delegates to specialists |
+| `researcher` | Analyzes target project structure and patterns |
+| `agent-definition-developer` | Creates `.agent.md` files |
+| `agent-definition-reviewer` | Reviews agent definitions |
+| `instructions-developer` | Creates `.instructions.md` files |
+| `instructions-reviewer` | Reviews instruction files |
+| `hooks-developer` | Creates `hooks.json` and scripts |
+| `hooks-reviewer` | Reviews hooks configuration |
+| `prompts-developer` | Creates `.prompt.md` files |
+| `prompts-reviewer` | Reviews prompt files |
+| `copilot-instructions-developer` | Creates `copilot-instructions.md` |
+| `copilot-instructions-reviewer` | Reviews copilot instructions |
 
-### Documentation Workflow
+## Critical Rules
 
-1. **Plan** → Architect creates documentation structure plan
-2. **Research** → Researcher gathers best practices and patterns
-3. **Write** → Doc Writer creates or updates content
-4. **Review** → Doc Reviewer validates quality
-5. **Validate** → Manager confirms all quality gates pass
+### Quality Standards
 
-### Organization
+1. **Valid Syntax** - All YAML frontmatter must be valid
+2. **Accurate Descriptions** - Agent descriptions must be specific and under 200 chars
+3. **Minimal Tools** - Use only necessary tools (principle of least privilege)
+4. **Actionable Instructions** - All instructions must be specific and actionable
+5. **No Overlaps** - Agents and instructions should not have overlapping responsibilities
+6. **Self-review required** - All agents should include a self-review protocol before completing work
+7. **File management** - Developer agents need the `execute` tool for terminal operations
+8. **TDD workflow** - Created agents should promote test-driven development practices
+9. **Cross-reference verification** - All file and agent references must be validated against actual paths
 
-- Agents are defined in `.github/agents/`
-- Path-specific instructions in `.github/instructions/`
-- Reusable prompts in `.github/prompts/`
+### File Naming
 
-## Critical Rules - Read First
+| File Type | Pattern | Example |
+|-----------|---------|---------|
+| Agent | `name.agent.md` | `test-writer.agent.md` |
+| Instructions | `name.instructions.md` | `python.instructions.md` |
+| Prompt | `name.prompt.md` | `add-feature.prompt.md` |
+| Hooks | `hooks.json` | `hooks.json` |
 
-**NEVER** finish a task early or leave work incomplete. You **MUST**:
+### YAML Frontmatter
 
-1. **Complete every requirement** specified in the task before marking it done
-2. **Write complete content** - no placeholders, stubs, or TODO comments
-3. **Verify accuracy** - all documentation must be accurate and tested
-4. **Ignore time limits** - quality trumps speed; take as long as needed
-5. **Fix all issues** - do not leave known problems or inconsistencies
-6. **Listen to user requests** - user requests must be addressed
-7. **Strive for excellence** - analyze if everything was done well before finishing
-8. **Consolidate and reuse** - avoid duplication, refactor similar content
-9. **Refactor and reuse** - always avoid adding new code, when encountering similar functions refactor and reduce amount of code without reducing functionality, you must focus on providing value to the project while keeping codebase small and maintainable
+```yaml
+# Agent definition
+---
+name: agent-name                 # Optional, defaults to filename
+description: Brief desc          # Required, max 200 chars
+tools: ["read", "edit"]          # Optional, omit for all tools
+agents: ["sub-agent-1"]          # Optional, list of subagents
+handoffs:                        # Optional, workflow transitions
+  - label: Next step
+    agent: next-agent
+    prompt: Context for the handoff
+    send: false
+user-invokable: true             # Optional, whether user can invoke directly
+disable-model-invocation: false  # Optional, whether model can invoke
+argument-hint: Describe what to do  # Optional, hint text in chat input
+mcp-servers:                     # Optional, MCP servers (target: github-copilot)
+  server-name:
+    url: https://example.com/mcp
+---
 
-## Quality Standards
+# Instructions
+---
+applyTo: "**/*.py"        # Required glob pattern
+name: instruction-name    # Optional, display name
+description: Brief desc   # Optional, purpose description
+---
 
-### Markdown Files (Mandatory)
-
-All Markdown files **MUST** follow these standards:
-
-- Clear, hierarchical heading structure (# → ## → ###)
-- Proper code block syntax highlighting
-- No broken links
-- Consistent formatting throughout
-- Valid Markdown syntax
-- Line length ≤ 100 characters preferred
-
-### YAML/TOML Files (Mandatory)
-
-- Use 2 spaces for indentation (no tabs)
-- No trailing whitespace
-- Consistent key naming (snake_case)
-- Valid syntax
-
-### Writing Style
-
-- Clear and concise language
-- Present tense for current behavior
-- Active voice preferred over passive
-- Technical accuracy is paramount
-- Keep paragraphs short and focused
-
-### Documentation Requirements
-
-- All instructions must have clear purpose statements
-- Include practical examples where helpful
-- Cross-reference related documents
-- Keep all documentation in sync
-
-## Project Structure
-
-```
-agents-instructions/
-├── .github/                  # Internal config (doc-focused agents for this repo)
-│   ├── agents/               # Documentation workflow agents
-│   │   ├── architect.agent.md
-│   │   ├── doc-reviewer.agent.md
-│   │   ├── doc-writer.agent.md
-│   │   ├── manager.agent.md
-│   │   └── researcher.agent.md
-│   ├── instructions/         # Path-specific instructions
-│   │   ├── config.instructions.md
-│   │   ├── documentation.instructions.md
-│   │   └── shell.instructions.md
-│   ├── prompts/              # Reusable prompts
-│   │   ├── add-feature.prompt.md
-│   │   └── fix-bug.prompt.md
-│   └── copilot-instructions.md
-├── deployment/               # Deployment templates (for other projects)
-└── README.md
+# Prompt
+---
+name: prompt-name         # Recommended, defaults to filename
+description: Brief desc   # Recommended
+agent: agent-name         # Optional, agent mode for execution
+argument-hint: Describe input  # Optional, hint text in chat input
+---
 ```
 
-## Workflow Guidelines
+#### Handoff Properties
 
-### Before Writing Documentation
+| Property | Required | Description |
+|----------|----------|-------------|
+| `label` | Yes | Display name for the handoff action |
+| `agent` | Yes | Target agent name (without `.agent.md`) |
+| `prompt` | No | Instructions/context passed to target agent |
+| `send` | No | `true` to send immediately, `false` for confirmation |
+| `model` | No | Specific model to use for the handoff |
 
-1. Read the full task description and requirements
-2. Understand the existing documentation structure
-3. Plan your approach before writing
-4. Check for existing content you can reuse or reference
+## Common Tasks
 
-### While Writing
+### Onboard a New Project
 
-1. Follow established patterns and conventions
-2. Keep content organized and well-structured
-3. Cross-reference related documentation
-4. Validate all examples and code snippets
+0. Check for existing `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` in target project to understand prior agent configurations
+1. Use `manager` agent or `onboard-project` prompt
+2. Provide target project path
+3. Manager delegates to:
+   - `researcher` → analyze project
+   - `copilot-instructions-developer` → create repo instructions
+   - `agent-definition-developer` → create agents
+   - `instructions-developer` → create file instructions
+   - `prompts-developer` → create prompts
+4. Reviewers validate each file
+5. Self-review phase: subagents report configuration improvement suggestions
+6. All files placed in target project's `.github/`
 
-### Before Completing a Task
+### Create a Single Agent
 
-- All content is written and complete
-- Markdown syntax is valid
-- All links work
-- Content is accurate and up-to-date
-- Related documentation is updated
+1. Use `agent-definition-developer` or `create-agent` prompt
+2. Provide agent role and purpose
+3. Developer generates `.agent.md` file
+4. `agent-definition-reviewer` validates
 
-## Prohibited Practices
+### Review Existing Configuration
 
-**NEVER do any of these:**
+1. Use `review-configuration` prompt
+2. Reviewers analyze all config files
+3. Report issues by severity
+4. Apply fixes as needed
 
-1. Leave incomplete sections with TODO/FIXME comments
-2. Create placeholder content
-3. Leave broken links
-4. Create inconsistent formatting
-5. Duplicate existing content without reason
-6. Leave outdated information
+## Verification Commands
 
-## Agent Behavior
+```bash
+# Validate YAML frontmatter
+grep -A5 "^---" file.agent.md
 
-When working on tasks:
+# Check for required properties
+grep "description:" file.agent.md
 
-1. **Be thorough** - complete every detail, not just the main content
-2. **Be critical** - review your own work for issues before finishing
-3. **Be persistent** - keep working until ALL requirements are met
-4. **Be honest** - if you cannot complete something, explain why clearly
+# List all agents
+ls .github/agents/*.agent.md
 
-**Remember: A task is NOT complete until:**
-- All documentation is written and accurate
-- All formatting is correct
-- All links are valid
-- Related documents are updated
+# List all instructions
+ls .github/instructions/*.instructions.md
+```
 
-## References
+## Hooks Format
 
-- [Markdown Guide](https://www.markdownguide.org/)
-- [YAML Specification](https://yaml.org/spec/)
-- [TOML Specification](https://toml.io/en/)
+Hooks support two formats:
+
+**CLI format** (GitHub Copilot CLI):
+- Uses `version: 1` at top level
+- Trigger names in camelCase (`sessionStart`, `preToolUse`)
+- Script paths via `bash` and `powershell` properties
+
+**VS Code canonical format**:
+- Trigger names in PascalCase (`SessionStart`, `PreToolUse`)
+- Script paths via `command`, `windows`, `linux`, `osx` properties
+
+## Forbidden Practices
+
+- ❌ Agents with overlapping responsibilities
+- ❌ Missing `description` in agent definitions
+- ❌ Generic instructions ("be helpful")
+- ❌ Instructions exceeding 30,000 characters
+- ❌ Glob patterns that match unintended files
+- ❌ CLI-format hooks without `version: 1`
+- ❌ Scripts without error handling

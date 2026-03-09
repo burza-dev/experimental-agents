@@ -22,15 +22,30 @@ experimental-agents/
 │   │   ├── researcher.agent.md    # Project analyzer
 │   │   ├── architect.agent.md     # Agent architecture designer
 │   │   ├── manual-tester.agent.md # Configuration tester
-│   │   ├── *-developer.agent.md   # Developer agents
-│   │   └── *-reviewer.agent.md    # Reviewer agents
+│   │   ├── *-developer.agent.md   # Developer agents (5)
+│   │   └── *-reviewer.agent.md    # Reviewer agents (5)
 │   ├── instructions/              # Path-specific instructions
 │   │   ├── agent-definition.instructions.md
+│   │   ├── agent-skills.instructions.md
+│   │   ├── context-engineering.instructions.md
 │   │   ├── instructions-file.instructions.md
 │   │   ├── prompt-file.instructions.md
 │   │   ├── hooks.instructions.md
 │   │   ├── copilot-instructions-file.instructions.md
 │   │   └── markdown.instructions.md
+│   ├── skills/                    # Reusable agent skills (loaded on-demand)
+│   │   ├── context-map/           # Context mapping before implementation
+│   │   ├── copilot-config-reference/ # Quick reference for all config file formats
+│   │   ├── evidence-contract/     # Structured orchestrator-subagent communication
+│   │   ├── glob-pattern-library/  # Glob patterns for instruction file applyTo fields
+│   │   ├── make-skill-template/   # Meta-skill for scaffolding new skills
+│   │   ├── model-recommendation/  # AI model selection guidance for agents and prompts
+│   │   ├── review-and-refactor/   # Review and refactoring workflow
+│   │   ├── self-review-protocol/  # Pre-completion validation checklist
+│   │   ├── suggest-awesome-github-copilot-agents/ # Suggest community agents from awesome-copilot
+│   │   ├── suggest-awesome-github-copilot-instructions/ # Suggest community instructions
+│   │   ├── suggest-awesome-github-copilot-skills/ # Suggest community skills
+│   │   └── yaml-frontmatter-validator/ # YAML frontmatter schema validation
 │   ├── prompts/                   # Reusable prompts
 │   │   ├── create-agent.prompt.md
 │   │   ├── create-copilot-instructions.prompt.md
@@ -42,24 +57,12 @@ experimental-agents/
 │   │   ├── optimize-agent.prompt.md
 │   │   ├── review-configuration.prompt.md
 │   │   └── validate-configuration.prompt.md
-│   ├── hooks/                     # Hooks configuration
-│   │   ├── hooks.json
-│   │   └── scripts/
-│   │       ├── log-prompt.ps1
-│   │       ├── log-prompt.sh
-│   │       ├── log-session.ps1
-│   │       ├── log-session.sh
-│   │       ├── log-tool.ps1
-│   │       ├── log-tool.sh
-│   │       ├── on-error.ps1
-│   │       ├── on-error.sh
-│   │       ├── validate-tool.ps1
-│   │       └── validate-tool.sh
 │   └── copilot-instructions.md    # This file
-├── templates/                     # Template directory (add more as needed)
-│   └── coding/                    # Coding templates
+├── awesome-copilot/               # Community collection of agents, skills, and instructions (git submodule)
 └── README.md
 ```
+
+> **Note:** The `.github/hooks/` directory does not currently exist. Hooks documentation and agents support creating hooks for target projects.
 
 ## Multi-Agent Workflow
 
@@ -135,10 +138,11 @@ User Request
 3. **Minimal Tools** - Use only necessary tools (principle of least privilege)
 4. **Actionable Instructions** - All instructions must be specific and actionable
 5. **No Overlaps** - Agents and instructions should not have overlapping responsibilities
-6. **Self-review required** - All agents should include a self-review protocol before completing work
-7. **File management** - Developer agents need the `execute` tool for terminal operations
-8. **TDD workflow** - Created agents should promote test-driven development practices
-9. **Cross-reference verification** - All file and agent references must be validated against actual paths
+6. **Self-review required** - Use the `self-review-protocol` skill before completing work
+7. **Structured communication** - Use the `evidence-contract` skill for orchestrator-subagent exchanges
+8. **File management** - Developer agents need the `execute` tool for terminal operations
+9. **TDD workflow** - Created agents should promote test-driven development practices
+10. **Cross-reference verification** - All file and agent references must be validated against actual paths
 
 ### File Naming
 
@@ -148,6 +152,7 @@ User Request
 | Instructions | `name.instructions.md` | `python.instructions.md` |
 | Prompt | `name.prompt.md` | `add-feature.prompt.md` |
 | Hooks | `hooks.json` | `hooks.json` |
+| Skill | `skill-name/SKILL.md` | `self-review-protocol/SKILL.md` |
 
 ### YAML Frontmatter
 
@@ -163,9 +168,11 @@ handoffs:                        # Optional, workflow transitions
     agent: next-agent
     prompt: Context for the handoff
     send: false
-user-invokable: true             # Optional, whether user can invoke directly
+user-invocable: true             # Optional, whether user can invoke directly
 disable-model-invocation: false  # Optional, whether model can invoke
 argument-hint: Describe what to do  # Optional, hint text in chat input
+model: "Claude Sonnet 4.5"      # Optional, AI model (or array for fallback list)
+target: "vscode"                 # Optional, "vscode" or "github-copilot"
 mcp-servers:                     # Optional, MCP servers (target: github-copilot)
   server-name:
     url: https://example.com/mcp
@@ -176,6 +183,7 @@ mcp-servers:                     # Optional, MCP servers (target: github-copilot
 applyTo: "**/*.py"        # Required glob pattern
 name: instruction-name    # Optional, display name
 description: Brief desc   # Optional, purpose description
+excludeAgent: "code-review"  # Optional
 ---
 
 # Prompt
@@ -184,6 +192,8 @@ name: prompt-name         # Recommended, defaults to filename
 description: Brief desc   # Recommended
 agent: agent-name         # Optional, agent mode for execution
 argument-hint: Describe input  # Optional, hint text in chat input
+tools: ["read", "edit"]          # Optional, tools for this prompt
+model: "gpt-4"                   # Optional, model to use
 ---
 ```
 
@@ -248,16 +258,45 @@ ls .github/instructions/*.instructions.md
 
 ## Hooks Format
 
-Hooks support two formats:
+Hooks use CLI format with `version: 1`:
 
-**CLI format** (GitHub Copilot CLI):
-- Uses `version: 1` at top level
-- Trigger names in camelCase (`sessionStart`, `preToolUse`)
-- Script paths via `bash` and `powershell` properties
+```json
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [{ "type": "command", "bash": "./scripts/start.sh", "powershell": "./scripts/start.ps1" }]
+  }
+}
+```
 
-**VS Code canonical format**:
-- Trigger names in PascalCase (`SessionStart`, `PreToolUse`)
-- Script paths via `command`, `windows`, `linux`, `osx` properties
+### Available Triggers
+
+| Trigger | When |
+|---------|------|
+| `sessionStart` | New or resumed session begins |
+| `sessionEnd` | Session completes |
+| `userPromptSubmitted` | User submits a prompt |
+| `preToolUse` | Before tool execution (can return `permissionDecision`) |
+| `postToolUse` | After tool completes |
+| `agentStop` | Main agent stops without error |
+| `subagentStop` | Subagent completes |
+| `errorOccurred` | Error during agent execution |
+
+### Hook Command Properties
+
+| Property | Required | Description |
+|----------|----------|-------------|
+| `type` | Yes | Must be `"command"` |
+| `bash` | Yes* | Bash command or script path |
+| `powershell` | Yes* | PowerShell command/script |
+| `cwd` | No | Working directory |
+| `timeoutSec` | No | Timeout in seconds (default: 30) |
+| `env` | No | Environment variables object |
+| `comment` | No | Documentation string |
+
+*At least one of `bash` or `powershell` required.
+
+Agents can also define agent-scoped hooks inline via the `hooks` frontmatter property (VS Code Preview).
 
 ## Forbidden Practices
 

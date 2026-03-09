@@ -36,7 +36,7 @@ Diagnose and resolve problems with agent configurations.
 ### Agent Not Responding
 | Symptom | Check | Fix |
 |---------|-------|-----|
-| No response at all | `user-invokable: false` | Set to `true` for direct invocation |
+| No response at all | `user-invocable: false` | Set to `true` for direct invocation |
 | Tools not working | Missing tool in `tools` array | Add required tool |
 | Subagents failing | `agents` list incomplete | Add missing subagent names |
 

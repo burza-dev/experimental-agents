@@ -68,6 +68,7 @@ in the hooks directory (like data files or configs) are also valid, but only
 | `PreCompact` | Before context compaction |
 | `SubagentStart` | When a subagent is invoked |
 | `SubagentStop` | When a subagent completes |
+| `AgentStop` | When main agent stops |
 
 ### Copilot CLI Triggers (camelCase)
 
@@ -79,9 +80,11 @@ in the hooks directory (like data files or configs) are also valid, but only
 | `preToolUse` | `PreToolUse` | Before tool execution |
 | `postToolUse` | `PostToolUse` | After tool execution |
 | `errorOccurred` | *(no equivalent)* | When error occurs (CLI only) |
+| `agentStop` | `AgentStop` | When main agent stops |
+| `subagentStop` | `SubagentStop` | When subagent completes |
 
 > **Note**: `sessionEnd` maps to `Stop` in VS Code. `errorOccurred` has no VS Code
-> equivalent. `PreCompact`, `SubagentStart`, and `SubagentStop` have no CLI equivalents.
+> equivalent. `PreCompact` and `SubagentStart` have no CLI equivalents.
 
 ## Trigger Data
 
@@ -189,6 +192,7 @@ echo '{"blocked": false}'
 - `timeout` - Timeout in seconds (default: 30)
 - `cwd` - Working directory (default: repo root)
 - `env` - Environment variables
+- `comment` - Documentation string
 
 ### Copilot CLI (Backward-Compatible)
 
@@ -213,6 +217,7 @@ echo '{"blocked": false}'
 - `cwd` - Working directory (default: repo root)
 - `timeoutSec` - Timeout in seconds (default: 30)
 - `env` - Environment variables
+- `comment` - Documentation string
 
 ## Script Requirements
 

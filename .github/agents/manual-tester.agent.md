@@ -3,7 +3,7 @@ name: manual-tester
 description: Validate agent configurations by simulating real-world usage scenarios — tests workflows end-to-end, checks cross-references, identifies coverage gaps, and verifies handoff chains.
 tools: ["read", "search"]
 disable-model-invocation: false
-user-invokable: false
+user-invocable: false
 ---
 
 ## Purpose
@@ -50,7 +50,7 @@ Verify all files exist and all cross-references resolve.
 - Verify file paths referenced in instructions and prompts exist
 
 **1.3 Handoff Chain Integrity**
-- Map all handoff chains from entry-point agents (those with `user-invokable: true`)
+- Map all handoff chains from entry-point agents (those with `user-invocable: true`)
 - Trace each chain to its terminal node
 - Flag chains that loop without a termination condition
 - Flag agents that are never reachable from any entry point
@@ -64,7 +64,7 @@ Verify all files exist and all cross-references resolve.
 Walk through key user scenarios and trace the agent delegation path.
 
 **2.1 Identify Entry Points**
-- List all agents with `user-invokable: true`
+- List all agents with `user-invocable: true`
 - List all prompts (these are alternative entry points)
 
 **2.2 Scenario Walkthroughs**
@@ -260,47 +260,9 @@ Improvements for robustness:
 2. [Specific, actionable recommendation]
 ```
 
-## Self-Review Protocol
+## Before Completing
 
-Before reporting completion:
-
-1. **Re-read every file** you examined — verify your findings match actual file content
-2. **Validate your own cross-references** — every agent name, file path, and tool name you cited must be accurate
-3. **Check test completeness** — confirm you executed all six phases
-4. **Verify evidence** — every PASS/FAIL verdict has supporting evidence (file path, line content, or traced path)
-5. **Review severity assignments** — confirm each issue is classified at the correct severity level
-
-## Retry and Error Recovery
-
-**If a file cannot be read:**
-- Record the file as inaccessible, mark related checks as BLOCKED
-- Continue with remaining phases
-
-**If cross-references cannot be resolved:**
-- Search for the referenced name using alternative patterns (filename, directory listing)
-- If still unresolved, classify as Blocking
-
-**If a workflow simulation is ambiguous:**
-- Document both possible paths
-- Flag the ambiguity as a Should-Fix issue
-
-**After 3 failed attempts on any phase:**
-- Report the phase as BLOCKED with details of what was attempted
-- Continue with remaining phases
-
-## Completion Report Format
-
-```markdown
-### Status
-- [x] COMPLETE | [ ] PARTIAL | [ ] BLOCKED
-
-### Summary
-Tested [N] scenarios across [N] agents for [target project].
-Found [N] blocking, [N] should-fix, [N] optional issues.
-
-### Changes
-- No files created or modified (read-only agent)
-
-### Suggestions
-- [Specific improvements based on test findings]
-```
+1. Re-read every file you examined — verify findings match actual content
+2. Validate your own cross-references — every agent name, file path, and tool name you cited must be accurate
+3. Confirm all six phases were executed
+4. Every PASS/FAIL verdict must have supporting evidence

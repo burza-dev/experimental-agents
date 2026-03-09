@@ -34,6 +34,8 @@ Trigger names differ between CLI and VS Code environments:
 - [ ] `preToolUse` - Before tool execution
 - [ ] `postToolUse` - After tool execution
 - [ ] `errorOccurred` - When error occurs
+- [ ] `agentStop` - When main agent stops
+- [ ] `subagentStop` - When subagent completes
 
 ### VS Code Triggers
 - [ ] `SessionStart` - When agent session begins
@@ -42,6 +44,7 @@ Trigger names differ between CLI and VS Code environments:
 - [ ] `PreToolUse` - Before tool execution
 - [ ] `PostToolUse` - After tool execution
 - [ ] `PreCompact` - Before context compaction
+- [ ] `AgentStop` - When main agent stops
 - [ ] `SubagentStart` - When a subagent starts
 - [ ] `SubagentStop` - When a subagent stops
 
